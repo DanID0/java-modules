@@ -26,14 +26,14 @@ public class ShelterAnalyticsService {
                 animalsBySpecies.put(allAnimals.get(i).getSpecies(), animalsBySpeciesR);
             }
             animalsBySpecies.get(allAnimals.get(i).getSpecies()).add(allAnimals.get(i));
-            if (allAnimals.get(i).getAge() == null) {
+            if (Optional.ofNullable(allAnimals.get(i).getAge()).isEmpty()) {
                 animalsNeedingVetInput.add((allAnimals.get(i)).getName() + "(" + allAnimals.get(i).getSpecies() + ")");
             }
         }
         vaccinatedCounts = allAnimals.stream().filter(Animal::isVaccinated).collect(Collectors.groupingBy(Animal::getSpecies, Collectors.counting()));
         notVaccinatedCounts = allAnimals.stream().filter(animal -> !animal.isVaccinated()).collect(Collectors.groupingBy(Animal::getSpecies, Collectors.counting()));
         oldBySpecies = allAnimals.stream().filter(animal -> animal.getAge() != null).collect(Collectors.groupingBy(Animal::getSpecies, Collectors.maxBy(Comparator.comparingInt(Animal::getAge))));
-        
+
         return new ShelterReportData(importResult, uniqueSpecies, animalsBySpecies, animalsNeedingVetInput, vaccinatedCounts, notVaccinatedCounts, oldBySpecies);
     }
 }

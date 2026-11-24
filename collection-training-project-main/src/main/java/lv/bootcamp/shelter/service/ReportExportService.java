@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ReportExportService {
 
@@ -24,6 +25,8 @@ public class ReportExportService {
             writer.write("Total imported: " + reportData.importResult().allAnimals().size());
             writer.newLine();
             writer.write("Total skipped: " + reportData.importResult().skippedRows());
+            writer.newLine();
+            writer.write("Invalid: " + reportData.importResult().invalidRowNumbers().stream().map(String::valueOf).collect(Collectors.joining(", ")));
             writer.newLine();
             writer.newLine();
             writer.write("--- Unique species ---");

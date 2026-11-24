@@ -23,6 +23,7 @@ public class CsvImportService {
         log.info("Starting import from {}", inputPath);
 
         List<Animal> allAnimals = new ArrayList<>();
+        List<Integer> invalidRowNumbers = new ArrayList<>();
         List<String> csv = new ArrayList<>();
         int skippedRows = 0;
         try {
@@ -36,6 +37,7 @@ public class CsvImportService {
             if (store.length != 5) {
                 log.warn("Invalid CSV line: expected 5 columns, found {}", store.length);
                 skippedRows += 1;
+                invalidRowNumbers.add(i + 1);
                 continue;
             }
             String name = store[0].trim();
@@ -47,11 +49,13 @@ public class CsvImportService {
             if (name.isBlank()) {
                 log.warn("Name field cannot be empty");
                 skippedRows += 1;
+                invalidRowNumbers.add(i + 1);
                 continue;
             }
             if (species.isBlank()) {
                 log.warn("Species field cannot be empty");
                 skippedRows += 1;
+                invalidRowNumbers.add(i + 1);
                 continue;
             }
             if (!ageText.isBlank()) {
@@ -61,11 +65,13 @@ public class CsvImportService {
                     if (age <= 0) {
                         log.warn("Skipping CSV line {}: age must be positive, like provided: '{}'", i + 1, ageText);
                         skippedRows += 1;
+                        invalidRowNumbers.add(i + 1);
                         continue;
                     }
                 } catch (NumberFormatException e) {
                     log.warn("Skipping CSV line {}: invalid age '{}'", i + 1, ageText);
                     skippedRows += 1;
+                    invalidRowNumbers.add(i + 1);
                     continue;
                 }
 
@@ -74,6 +80,7 @@ public class CsvImportService {
             if (!vaccined.equalsIgnoreCase("true") && !vaccined.equalsIgnoreCase("false")) {
                 log.warn("Skipping CSV line {}: invalid vaccination status '{}'", i + 1, vaccined);
                 skippedRows += 1;
+                invalidRowNumbers.add(i + 1);
                 continue;
             }
             boolean vaccinated = Boolean.parseBoolean(vaccined);
@@ -85,6 +92,7 @@ public class CsvImportService {
             } catch (DateTimeParseException e) {
                 log.warn("Skipping CSV line {}: invalid intake date '{}'", i + 1, date);
                 skippedRows += 1;
+                invalidRowNumbers.add(i + 1);
                 continue;
             }
             allAnimals.add(new Animal(name, species, age, vaccinated, intakeDate));
@@ -96,6 +104,6 @@ public class CsvImportService {
         // 4) Allow blank age as unknown (null), but reject non-numeric age values.
         // 5) Parse intakeDate using DateTimeFormatter.
         // 6) Map each row to Animal object.
-        return new ImportResult(allAnimals, skippedRows);
+        return new ImportResult(allAnimals, skippedRows, invalidRowNumbers);
     }
 }
