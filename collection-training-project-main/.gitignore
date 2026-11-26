@@ -1,4 +1,5 @@
 target/
 .idea/
 *.iml
-output/upload-report.txt
+/output/*
+!/output/.gitkeep
